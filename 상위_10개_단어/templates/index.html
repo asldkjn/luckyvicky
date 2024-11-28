@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>상위 10개 단어 분석 결과 페이지</title>
+</head>
+<body>
+    <h1>속성 선택</h1>
+    <label for="aspect">분석할 속성을 선택하세요:</label>
+    <select id="aspect">
+        <option value="사용감/착용감">사용감/착용감</option>
+        <option value="효과/성능/기능">효과/성능/기능</option>
+        <option value="품질/디자인/구성">품질/디자인/구성</option>
+        <option value="편의성/활용성">편의성/활용성</option>
+        <option value="가격">가격</option>
+        <option value="사이즈/무게/개수">사이즈/무게/개수</option>
+        <option value="제조/유통/서비스">제조/유통/서비스</option>
+    </select>
+    <br><br>
+    <h1>파일 선택</h1>
+    <label for="달바">달바</label>
+    <input type="checkbox" id="달바" value="달바"> 달바 <br>
+
+    <label for="바이오힐보">바이오힐보</label>
+    <input type="checkbox" id="바이오힐보" value="바이오힐보"> 바이오힐보 <br>
+
+    <label for="아벤느">아벤느</label>
+    <input type="checkbox" id="아벤느" value="아벤느"> 아벤느 <br>
+    <br>
+    <button onclick="analyze()">분석하기</button>
+    <br><br>
+    <div id="chart"></div>
+    <script>
+        function analyze() {
+            const aspect = document.getElementById("aspect").value;
+            const files = [];
+            if (document.getElementById("달바").checked) files.push("달바");
+            if (document.getElementById("바이오힐보").checked) files.push("바이오힐보");
+            if (document.getElementById("아벤느").checked) files.push("아벤느");
+
+            fetch("/analyze", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ aspect: aspect, files: files })
+            }).then(response => {
+                if (!response.ok) {
+                    throw new Error("Network response was not ok: " + response.statusText);
+                }
+                return response.json();  // JSON으로 파싱
+            })
+            .then(data => {
+                let chartsHtml = "";
+                if (data.positive_b_chart) {
+                    chartsHtml += `<img src="data:image/png;base64,${data.positive_b_chart}"/>`;
+                }
+                if (data.positive_i_chart) {
+                    chartsHtml += `<img src="data:image/png;base64,${data.positive_i_chart}"/>`;
+                }
+                if (data.negative_b_chart) {
+                    chartsHtml += `<img src="data:image/png;base64,${data.negative_b_chart}"/>`;
+                }
+                if (data.negative_i_chart) {
+                    chartsHtml += `<img src="data:image/png;base64,${data.negative_i_chart}"/>`;
+                }
+                document.getElementById("chart").innerHTML = chartsHtml || "분석 결과가 없습니다.";
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById("chart").innerHTML = "오류가 발생했습니다. 자세한 내용을 콘솔에서 확인하세요.";
+            });
+        }
+        
+    </script>
+</body>
+</html>

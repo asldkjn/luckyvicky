@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Product-Based Word Clouds</title>
+    <style>
+        .tooltip {
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: #fff;
+            padding: 5px;
+            border-radius: 5px;
+            font-size: 12px;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        .word-cloud-container {
+            width: 100%;
+            overflow-x: auto;
+            white-space: nowrap;
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+            padding-bottom: 20px;
+        }
+        .product-row {
+            display: flex;
+            gap: 20px;
+            min-width: 2600px; /* 각 행이 스크롤로 잘리지 않도록 충분히 넓게 설정 */
+        }
+        .word-cloud-column {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 600px; /* 각 감정 칸의 너비 */
+        }
+        .word-cloud {
+            width: 600px;
+            height: 550px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            overflow: hidden;
+            position: relative;
+        }
+        .bar-chart {
+            width: 600px;
+            height: 300px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        h3 {
+            text-align: center;
+            margin-top: 0;
+            font-size: 16px;
+        }
+        .controls {
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="controls">
+    <h3>제품 선택</h3>
+    <label><input type="checkbox" value="달바"> 달바</label>
+    <label><input type="checkbox" value="바이오힐보"> 바이오힐보</label>
+    <label><input type="checkbox" value="아벤느"> 아벤느</label>
+
+    <h3>속성 선택</h3>
+    <select id="aspectSelector">
+        <option value="사용감/착용감">사용감/착용감</option>
+        <option value="효과/성능/기능">효과/성능/기능</option>
+        <option value="품질/디자인/구성">품질/디자인/구성</option>
+        <option value="편의성/활용성">편의성/활용성</option>
+        <option value="가격">가격</option>
+        <option value="사이즈/무게/개수">사이즈/무게/개수</option>
+        <option value="제조/유통/서비스">제조/유통/서비스</option>
+    </select>
+
+    <button onclick="generateWordClouds()">워드 클라우드 생성</button>
+</div>
+
+<div id="wordCloudContainer" class="word-cloud-container"></div>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script src="https://d3js.org/d3.v6.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3-cloud/1.2.5/d3.layout.cloud.min.js"></script>
+
+<script>
+    const sentiments = ["positive_b", "positive_i", "negative_b", "negative_i"];
+    const sentimentLabels = {
+        "positive_b": "B-긍정",
+        "positive_i": "I-긍정",
+        "negative_b": "B-부정",
+        "negative_i": "I-부정"
+    };
+
+    const colorScales = {
+        "달바": ["rgb(225, 215, 0)", "rgb(38, 38, 38)"],
+        "바이오힐보": ["#b2d8b2", "#1a535c"],
+        "아벤느": ["#ffcccb", "#cc7766"]
+    };
+
+    function fetchAndCreateWordCloud(selector, jsonFile, product, sentiment, chartSelector) {
+        fetch(jsonFile)
+            .then(response => response.json())
+            .then(data => {
+                const words = Object.keys(data).map(word => ({
+                    text: word,
+                    size: Math.min(Math.sqrt(data[word]) * 8, 35),
+                    frequency: data[word]
+                }));
+
+                const maxFrequency = Math.max(...words.map(d => d.frequency));
+                const minFrequency = Math.min(...words.map(d => d.frequency));
+
+                // 색상 스케일을 각 데이터의 빈도수에 맞게 설정
+                const colorScale = d3.scaleLinear()
+                    .domain([minFrequency, maxFrequency])
+                    .range(colorScales[product]);
+
+                createWordCloud(selector, words, colorScale);
+                createBarChart(chartSelector, words, product, maxFrequency);
+            })
+            .catch(error => console.error("Error loading JSON file:", error));
+    }
+
+    function createWordCloud(selector, words, colorScale) {
+        const width = 600;
+        const height = 500;
+        const tooltip = document.getElementById("tooltip");
+
+        d3.select(selector).selectAll("svg").remove();
+
+        const layout = d3.layout.cloud()
+            .size([width, height])
+            .words(words)
+            .padding(3)
+            .rotate(0)
+            .fontSize(d => d.size)
+            .on("end", draw)
+            .start();
+
+        function draw(words) {
+            const svg = d3.select(selector).append("svg")
+                .attr("width", width)
+                .attr("height", height)
+                .append("g")
+                .attr("transform", `translate(${width / 2}, ${height / 2})`);
+
+            svg.selectAll("text")
+                .data(words)
+                .enter().append("text")
+                .style("font-size", d => `${d.size}px`)
+                .style("fill", d => colorScale(d.frequency))
+                .attr("text-anchor", "middle")
+                .attr("transform", d => `translate(${d.x}, ${d.y})`)
+                .text(d => d.text)
+                .on("mouseover", (event, d) => {
+                    tooltip.style.visibility = "visible";
+                    tooltip.textContent = `단어: ${d.text}, 빈도수: ${d.frequency}`;
+                })
+                .on("mousemove", (event) => {
+                    tooltip.style.top = `${event.pageY + 10}px`;
+                    tooltip.style.left = `${event.pageX + 10}px`;
+                })
+                .on("mouseout", () => {
+                    tooltip.style.visibility = "hidden";
+                });
+        }
+    }
+
+    function createBarChart(selector, words, product, maxFrequency) {
+        const topWords = words.sort((a, b) => b.frequency - a.frequency).slice(0, 15);
+        const colorScale = d3.scaleLinear().domain([0, maxFrequency]).range(colorScales[product]);
+
+        d3.select(selector).selectAll("svg").remove();
+
+        const margin = { top: 20, right: 20, bottom: 50, left: 100 };
+        const width = 600 - margin.left - margin.right;
+        const height = 300 - margin.top - margin.bottom;
+
+        const svg = d3.select(selector).append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+        const y = d3.scaleBand().domain(topWords.map(d => d.text)).range([0, height]).padding(0.1);
+        const x = d3.scaleLinear().domain([0, d3.max(topWords, d => d.frequency)]).range([0, width]);
+
+        svg.selectAll(".bar")
+            .data(topWords)
+            .enter().append("rect")
+            .attr("class", "bar")
+            .attr("y", d => y(d.text))
+            .attr("height", y.bandwidth())
+            .attr("x", 0)
+            .attr("width", d => x(d.frequency))
+            .attr("fill", d => colorScale(d.frequency));
+
+        svg.append("g").call(d3.axisLeft(y));
+        svg.append("g").attr("transform", `translate(0,${height})`).call(d3.axisBottom(x).ticks(5));
+    }
+
+    function generateWordClouds() {
+        const wordCloudContainer = document.getElementById("wordCloudContainer");
+        wordCloudContainer.innerHTML = ''; 
+
+        const selectedProducts = Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
+        const selectedAspect = document.getElementById("aspectSelector").value.replace(/\//g, "_");
+
+        selectedProducts.forEach(product => {
+            const productRow = document.createElement("div");
+            productRow.className = "product-row";
+
+            sentiments.forEach(sentiment => {
+                const columnDiv = document.createElement("div");
+                columnDiv.className = "word-cloud-column";
+
+                const wordCloudDiv = document.createElement("div");
+                wordCloudDiv.className = "word-cloud";
+                wordCloudDiv.innerHTML = `<h3>${product} - ${sentimentLabels[sentiment]}</h3>`;
+                columnDiv.appendChild(wordCloudDiv);
+
+                const barChartDiv = document.createElement("div");
+                barChartDiv.className = "bar-chart";
+                columnDiv.appendChild(barChartDiv);
+
+                const jsonFile = `${product}_${selectedAspect}_${sentiment}_words.json`;
+                fetchAndCreateWordCloud(wordCloudDiv, jsonFile, product, sentiment, barChartDiv);
+
+                productRow.appendChild(columnDiv);
+            });
+
+            wordCloudContainer.appendChild(productRow);
+        });
+    }
+</script>
+
+</body>
+</html>
