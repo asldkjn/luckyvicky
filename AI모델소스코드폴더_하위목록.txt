@@ -1,0 +1,174 @@
+폴더 PATH의 목록입니다.
+볼륨 일련 번호는 ECAE-13EB입니다.
+C:.
+│  README.md
+│  requirements.txt
+│  폴더하위목록.txt
+│  
+├─.idea
+│  │  .gitignore
+│  │  deployment.xml
+│  │  misc.xml
+│  │  modules.xml
+│  │  NIA_ABSA.iml
+│  │  workspace.xml
+│  │  
+│  └─inspectionProfiles
+│          profiles_settings.xml
+│          Project_Default.xml
+│          
+├─ckpt
+│  ├─model
+│  │      meta.bin
+│  │      train.log
+│  │      
+│  └─result_model
+│      │  config.json
+│      │  meta.bin
+│      │  model.py
+│      │  pytorch_model.bin
+│      │  tokenizer_config.json
+│      │  
+│      └─.ipynb_checkpoints
+├─logs
+├─resources
+│  ├─data
+│  │  ├─test
+│  │  │      01. 패션_test.csv
+│  │  │      02. 화장품_test.csv
+│  │  │      03. 가전_test.csv
+│  │  │      04. IT기기_test.csv
+│  │  │      05. 생활_test.csv
+│  │  │      
+│  │  ├─train
+│  │  │      01. 패션_train.csv
+│  │  │      02. 화장품_train.csv
+│  │  │      03. 가전_train.csv
+│  │  │      04. IT기기_train.csv
+│  │  │      05. 생활_train.csv
+│  │  │      
+│  │  └─valid
+│  │          01. 패션_valid.csv
+│  │          02. 화장품_valid.csv
+│  │          03. 가전_valid.csv
+│  │          04. IT기기_valid.csv
+│  │          05. 생활_valid.csv
+│  │          
+│  └─image
+│          absa_bert-crf-architecture.png
+│          dist_info.PNG
+│          eval_result.PNG
+│          train_data.PNG
+│          train_log.PNG
+│          
+├─scripts
+│  ├─data
+│  │      data_parsing.sh
+│  │      pos_analysis.sh
+│  │      
+│  └─model
+│          do_eval.sh
+│          do_train.sh
+│          
+└─src
+    │  do_eval.py
+    │  do_parsingData.py
+    │  do_posTagging.py
+    │  do_train.ipynb
+    │  do_train.py
+    │  inference.ipynb
+    │  inference_modified.ipynb
+    │  
+    ├─.ipynb_checkpoints
+    │      do_train-checkpoint.ipynb
+    │      Untitled-checkpoint.ipynb
+    │      
+    ├─data_manager
+    │  ├─dataset
+    │  │  │  absa.py
+    │  │  │  
+    │  │  ├─utils
+    │  │  │  │  absa.py
+    │  │  │  │  file_io.py
+    │  │  │  │  label_map.py
+    │  │  │  │  model_utils.py
+    │  │  │  │  please.ipynb
+    │  │  │  │  set_logger.py
+    │  │  │  │  
+    │  │  │  └─__pycache__
+    │  │  │          file_io.cpython-312.pyc
+    │  │  │          file_io.cpython-36.pyc
+    │  │  │          file_io.cpython-39.pyc
+    │  │  │          label_map.cpython-312.pyc
+    │  │  │          model_utils.cpython-312.pyc
+    │  │  │          model_utils.cpython-36.pyc
+    │  │  │          model_utils.cpython-39.pyc
+    │  │  │          set_logger.cpython-312.pyc
+    │  │  │          set_logger.cpython-36.pyc
+    │  │  │          set_logger.cpython-39.pyc
+    │  │  │          
+    │  │  └─__pycache__
+    │  │          absa.cpython-312.pyc
+    │  │          absa.cpython-36.pyc
+    │  │          absa.cpython-39.pyc
+    │  │          
+    │  ├─loaders
+    │  │  │  loader.py
+    │  │  │  
+    │  │  └─__pycache__
+    │  │          loader.cpython-310.pyc
+    │  │          loader.cpython-312.pyc
+    │  │          loader.cpython-36.pyc
+    │  │          loader.cpython-39.pyc
+    │  │          
+    │  └─parsers
+    │      │  json2csv.py
+    │      │  split_csv.py
+    │      │  
+    │      └─label_unification
+    │          │  label_map.py
+    │          │  
+    │          └─__pycache__
+    │                  label_map.cpython-312.pyc
+    │                  label_map.cpython-36.pyc
+    │                  label_map.cpython-39.pyc
+    │                  
+    ├─modeling
+    │  │  model.py
+    │  │  trainer.py
+    │  │  
+    │  └─__pycache__
+    │          model.cpython-312.pyc
+    │          model.cpython-36.pyc
+    │          model.cpython-39.pyc
+    │          trainer.cpython-312.pyc
+    │          trainer.cpython-36.pyc
+    │          trainer.cpython-39.pyc
+    │          
+    └─wisekmapy
+        │  jvm.py
+        │  sample.py
+        │  temp_logback.xml
+        │  wisekma-black-1.6.3-nl.jar
+        │  wisekma.py
+        │  wisekma_instance.py
+        │  __init__.py
+        │  
+        ├─knowledge
+        │      config.yaml
+        │      license.xml
+        │      usernoun.txt
+        │      wkb_nocomp.klg
+        │      
+        ├─test
+        │      api_test.py
+        │      jvm_test.py
+        │      result.txt
+        │      wisekma_test.py
+        │      __init__.py
+        │      
+        └─__pycache__
+                jvm.cpython-39.pyc
+                wisekma.cpython-39.pyc
+                __init__.cpython-39.pyc
+                
